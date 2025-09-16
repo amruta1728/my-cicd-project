@@ -1,7 +1,7 @@
 ---
 - name: Deploy Web App
   hosts: webserver
-  become: yes
+  become: false
 
   tasks:
     - name: Install Apache
