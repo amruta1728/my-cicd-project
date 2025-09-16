@@ -10,8 +10,15 @@
         state: present
         update_cache: yes
 
-    - name: Copy HTML to web server
+    - name: Copy app files
       copy:
-        src: ../app/
+        src: app/
         dest: /var/www/html/
         mode: '0644'
+      notify: Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
