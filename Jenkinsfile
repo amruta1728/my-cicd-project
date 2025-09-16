@@ -2,19 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repo') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/amruta1728/my-cicd-project.git'
+                git branch: 'main', url: 'https://github.com/amruta1728/my-cicd-project.git'
             }
         }
 
-        stage('Run Ansible') {
+        stage('Run Ansible Playbook') {
             steps {
-                ansiblePlaybook(
-                    playbook: 'ansible/deploy.yaml',
-                    inventory: 'inventory'
-                )
+                sh '''
+                ansible-playbook -i inventory.ini deploy.yml
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment completed successfully!"
+        }
+        failure {
+            echo "❌ Deployment failed. Check logs."
         }
     }
 }
