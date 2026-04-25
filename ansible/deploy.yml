@@ -1,0 +1,49 @@
+---
+- name: Deploy Web App with Nginx
+  hosts: webserver
+  become: yes
+
+  vars:
+    app_dest: /var/www/html
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Stop Apache if running (avoid port conflict)
+      service:
+        name: apache2
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Ensure Nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Remove default Nginx page
+      file:
+        path: "{{ app_dest }}/index.nginx-debian.html"
+        state: absent
+
+    - name: Copy application files
+      copy:
+        src: ../app/
+        dest: "{{ app_dest }}/"
+        mode: '0644'
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
